@@ -4,7 +4,7 @@
 
     <application
         android:label="/d/gapps"
-        android:theme="@android:style/Theme.Dialog" >
+        android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         <activity
             android:name=".MainActivity"
             android:label="/d/gapps" >
