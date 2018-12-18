@@ -24,46 +24,57 @@ public class MainActivity extends Activity
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
         LinearLayout.LayoutParams butparam=new LinearLayout.LayoutParams(-1,-1);
         butparam.weight=1;
-		LinearLayout main = new LinearLayout(this);
-		LinearLayout ll = new LinearLayout(this);
-		LinearLayout ll2 = new LinearLayout(this);
-		final TextView tt = new TextView(this);
-		tt.setText("Disable: disable gapps\nRemove:delete gapps with gmscore\nClear:delete gapps without gmscore\nReboot: reboot system");
+		LinearLayout main = new LinearLayout(getApplicationContext());
+		LinearLayout ll = new LinearLayout(getApplicationContext());
+		LinearLayout ll2 = new LinearLayout(getApplicationContext());
 		main.setPadding(20,10,20,10);
-		Button delete = new Button(this);
-		delete.setText("Delete");
+		Button delete = new Button(getApplicationContext());
+		delete.setText("Delete(gapps)");
 		delete.setSingleLine();
 		delete.setLayoutParams(butparam);
-		Button safe = new Button(this);
-		safe.setText("Clear");
+		Button deletems = new Button(getApplicationContext());
+		deletems.setText("Delete(msapps)");
+		deletems.setSingleLine();
+		deletems.setLayoutParams(butparam);
+		Button safe = new Button(getApplicationContext());
+		safe.setText("Delete(no-gms)");
 		safe.setLayoutParams(butparam);
 		safe.setSingleLine();
-		Button disable = new Button(this);
-		disable.setText("Disable");
+		Button disable = new Button(getApplicationContext());
+		disable.setText("Disable(gapps)");
 		disable.setLayoutParams(butparam);
 		disable.setSingleLine();
-		Button reboot =new Button(this);
-		reboot.setText("Reboot");
-		reboot.setLayoutParams(butparam);
-		reboot.setSingleLine();
-		main.setOrientation(LinearLayout.VERTICAL);
+		Button disablems = new Button(getApplicationContext());
+		disablems.setText("Disable(msapps)");
+		disablems.setLayoutParams(butparam);
+		disablems.setSingleLine();
+		Button dalvik =new Button(getApplicationContext());
+		dalvik.setText("Clear(dalvik)");
+		dalvik.setLayoutParams(butparam);
+		dalvik.setSingleLine();
+		main.setOrientation(LinearLayout.HORIZONTAL);
 		main.setLayoutParams(new LinearLayout.LayoutParams(-1,-1));
 		ll.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
+		ll.setOrientation(LinearLayout.VERTICAL);
 		ll2.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
+		ll2.setOrientation(LinearLayout.VERTICAL);
 		ll.addView(delete);
+		ll.addView(deletems);
 		ll.addView(safe);
 		ll2.addView(disable);
-		ll2.addView(reboot);
+		ll2.addView(disablems);
+		ll2.addView(dalvik);
 		main.addView(ll);
 		main.addView(ll2);
-		main.addView(tt);
 		setContentView(main);
 		super.onCreate(savedInstanceState);
 		try{
 			final Process process = Runtime.getRuntime().exec("su");
 			final DataOutputStream dataOutputStream = new DataOutputStream(process.getOutputStream());
-			dataOutputStream.writeBytes("mount -o rw,remount /system\n");	
-			dataOutputStream.flush();
+            dataOutputStream.writeBytes("mount -o rw,remount /system\n");
+            dataOutputStream.flush();
+            dataOutputStream.writeBytes("mount -o rw,remount /vendor\n");
+            dataOutputStream.flush();
 			dataOutputStream.close();
 			delete.setOnClickListener(new OnClickListener(){
 
@@ -84,7 +95,7 @@ public class MainActivity extends Activity
 						dataOutputStream.writeBytes("rm -rf /data/data/*com.android.vending* &\n");
 						dataOutputStream.flush();
 						//delete all gapps
-						String code="pm list package -f | grep google";
+						String code="pm list package -f --user 0 | grep google";
 						String[] list ={
 								"com.google.android.ext.services",
 								"com.google.android.packageinstaller",
@@ -96,16 +107,41 @@ public class MainActivity extends Activity
 						code=code+" | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\"> /data/list\n";
 						dataOutputStream.writeBytes(code);
 						dataOutputStream.flush();
-						dataOutputStream.writeBytes("pm list package -f | grep com.android.vending | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\">> /data/list\n");
+						dataOutputStream.writeBytes("pm list package -f --user 0 | grep com.android.vending | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\">> /data/list\n");
 						dataOutputStream.flush();
-						dataOutputStream.writeBytes("pm list package -f | grep com.android.chrome | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\">> /data/list\n");
+						dataOutputStream.writeBytes("pm list package -f --user 0 | grep com.android.chrome | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\">> /data/list\n");
 						dataOutputStream.flush();
 						dataOutputStream.writeBytes("sh /data/list\n");
 						dataOutputStream.flush();
 						dataOutputStream.close();
-						tt.setText("Gapps deleted succesfuly.");
+						Toast.makeText(getApplicationContext(),"Gapps deleted succesfuly.",Toast.LENGTH_LONG).show();
 					}catch(Exception e){
-						tt.setText("Fail: "+e.toString());
+						Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
+					}
+				}
+			});
+		deletems.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View p1)
+				{
+					try{
+						Process process = Runtime.getRuntime().exec("su");
+						DataOutputStream dataOutputStream = new DataOutputStream(process.getOutputStream());
+						dataOutputStream.writeBytes("rm -rf /data/app/*{m,M}icrosoft*  &\n");
+						dataOutputStream.flush();
+						dataOutputStream.writeBytes("rm -rf /data/data/*{m,M}icrosoft* &\n");
+						dataOutputStream.flush();
+						//delete all msapps
+						String code="pm list package -f --user 0 | grep microsoft | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\"> /data/list\n";
+						dataOutputStream.writeBytes(code);
+						dataOutputStream.flush();
+						dataOutputStream.writeBytes("sh /data/list\n");
+						dataOutputStream.flush();
+						dataOutputStream.close();
+						Toast.makeText(getApplicationContext(),"Microsoft Apps deleted succesfuly.",Toast.LENGTH_LONG).show();
+					}catch(Exception e){
+						Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
 					}
 				}
 			});
@@ -126,7 +162,7 @@ public class MainActivity extends Activity
 						dataOutputStream.writeBytes("rm -rf /data/data/*com.android.vending* &\n");
 						dataOutputStream.flush();
 						//delete without gmscore
-						String code="pm list package -f | grep google";
+						String code="pm list package -f --user 0 | grep google";
 						String[] list ={
 								"com.google.android.gms",
 								"com.google.android.ext.services",
@@ -156,9 +192,9 @@ public class MainActivity extends Activity
 						dataOutputStream.writeBytes("sh /data/list\n");
 						dataOutputStream.flush();
 						dataOutputStream.close();
-						tt.setText("Gapps cleared succesfuly.");
+						Toast.makeText(getApplicationContext(),"Gapps cleared succesfuly.",Toast.LENGTH_LONG).show();
 					}catch(Exception e){
-						tt.setText("Fail: "+e.toString());
+						Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
 					}
 				}
 			});
@@ -179,14 +215,14 @@ public class MainActivity extends Activity
 							dataOutputStream.writeBytes("sh /data/list\n");
 							dataOutputStream.flush();
 							dataOutputStream.close();
-							tt.setText("Gapps disabled succesfuly.");
+							Toast.makeText(getApplicationContext(),"Gapps disabled succesfuly.",Toast.LENGTH_LONG).show();
 							
 						}catch(Exception e){
-							tt.setText("Fail: "+e.toString());
+							Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
 						}
 					}
 				});
-			reboot.setOnClickListener(new OnClickListener(){
+		disable.setOnClickListener(new OnClickListener(){
 
 					@Override
 					public void onClick(View p1)
@@ -194,18 +230,40 @@ public class MainActivity extends Activity
 						try{
 							Process process = Runtime.getRuntime().exec("su");
 							DataOutputStream dataOutputStream = new DataOutputStream(process.getOutputStream());
-							dataOutputStream.writeBytes("reboot\n");
+							dataOutputStream.writeBytes("pm list package | grep microsoft | sed \"s/.*:/pm disable /\"> /data/list\n");
 							dataOutputStream.flush();
+							dataOutputStream.writeBytes("sh /data/list\n");
+							dataOutputStream.flush();
+							dataOutputStream.close();
+							Toast.makeText(getApplicationContext(),"Msapps disabled succesfuly.",Toast.LENGTH_LONG).show();
+							
+						}catch(Exception e){
+							Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
+						}
+					}
+				});
+			dalvik.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View p1)
+					{
+						try{
+							Process process = Runtime.getRuntime().exec("su");
+							DataOutputStream dataOutputStream = new DataOutputStream(process.getOutputStream());
+                            dataOutputStream.writeBytes("rm -rf /data/dalvik-cache/*\n");
+                            dataOutputStream.flush();
+                            dataOutputStream.writeBytes("reboot\n");
+                            dataOutputStream.flush();
 
 						}catch(Exception e){
-							tt.setText("Fail: "+e.toString());
+							Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
 						}
 					}
 				});
 				}
 		catch (Exception e)
 		{
-			tt.setText("Fail: "+e.toString());
+			Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
 		}
 
     }
