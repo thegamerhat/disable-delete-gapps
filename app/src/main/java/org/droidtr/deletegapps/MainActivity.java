@@ -2,6 +2,10 @@ package org.droidtr.deletegapps;
 
 import android.app.*;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.*;
 import java.io.*;
@@ -29,7 +33,12 @@ public class MainActivity extends Activity
 		butparam.weight=1;
 		Button b=new Button(getApplicationContext());
 		b.setText(label);
-		b.setSingleLine();
+		b.setTextColor(Color.WHITE);
+		GradientDrawable gd = new GradientDrawable();
+		gd.setStroke(10,0);
+		gd.setCornerRadius(15);
+		gd.setColor(Color.DKGRAY);
+		b.setBackgroundDrawable(gd);
 		b.setLayoutParams(butparam);
 		return b;
 	}
@@ -38,7 +47,10 @@ public class MainActivity extends Activity
 		butparam.weight=1;
 		TextView t=new TextView(getApplicationContext());
 		t.setText(label);
+		t.setTextColor(Color.BLACK);
+		t.setTypeface(Typeface.create("",Typeface.BOLD));
 		t.setSingleLine();
+		t.setPadding(7,7,7,7);
 		t.setLayoutParams(butparam);
 		return t;
 	}
@@ -57,19 +69,14 @@ public class MainActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-		if(Build.VERSION.SDK_INT>21){
-			setTheme(android.R.style.Theme_Material_Dialog);
-		}else if(Build.VERSION.SDK_INT>14){
-			setTheme(android.R.style.Theme_Holo_Dialog);
-		}else{
-			setTheme(android.R.style.Theme_Dialog);
-		}
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		LinearLayout main = new LinearLayout(getApplicationContext());
-		main.setPadding(20,10,20,10);
+    	main.setPadding(20,10,20,10);
 		main.setOrientation(LinearLayout.VERTICAL);
 		main.setLayoutParams(new LinearLayout.LayoutParams(-1,-1));
+		GradientDrawable gd = new GradientDrawable();
+		gd.setStroke(2,Color.BLACK);
+		gd.setCornerRadius(15);
+		gd.setColor(Color.LTGRAY);
 
 		final Button delete = getButton("Delete");
 		Button deletems = getButton("Delete");
@@ -114,8 +121,10 @@ public class MainActivity extends Activity
 		lls.addView(info);
 		main.addView(getLabel("Other"));
 		main.addView(lls);
-
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(main);
+		main.setBackgroundDrawable(gd);
+		getWindow().setBackgroundDrawable(new ColorDrawable(0));
 		super.onCreate(savedInstanceState);
 		try {
 			run("mount -o rw,remount /system\n");
