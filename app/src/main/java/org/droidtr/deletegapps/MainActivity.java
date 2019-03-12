@@ -1,6 +1,8 @@
 package org.droidtr.deletegapps;
 
 import android.app.*;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,6 +13,11 @@ import android.os.*;
 import java.io.*;
 
 import java.lang.Process;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 import android.widget.*;
 import android.view.View.*;
 import android.view.*;
@@ -24,12 +31,15 @@ public class MainActivity extends Activity
 		dataOutputStream.writeBytes(cmd);
 		dataOutputStream.flush();
 		dataOutputStream.close();
-		
-		
+
+	}
+	public void copyFromInternet(String url,String path){
+		Toast.makeText(getApplicationContext(),"Downloading...",Toast.LENGTH_LONG).show();
+		new Download(getApplicationContext()).execute(url,path);
 
 	}
 	public Button getButton(String label){
-		LinearLayout.LayoutParams butparam=new LinearLayout.LayoutParams(-1,-1);
+		LinearLayout.LayoutParams butparam=new LinearLayout.LayoutParams(-2,-1);
 		butparam.weight=1;
 		Button b=new Button(getApplicationContext());
 		b.setText(label);
@@ -40,6 +50,7 @@ public class MainActivity extends Activity
 		gd.setColor(Color.DKGRAY);
 		b.setBackgroundDrawable(gd);
 		b.setLayoutParams(butparam);
+		b.setSingleLine(true);
 		return b;
 	}
 	public TextView getLabel(String label){
@@ -80,7 +91,7 @@ public class MainActivity extends Activity
 
 		final Button delete = getButton("Delete");
 		Button deletems = getButton("Delete");
-		Button safe = getButton("Delete without gms");
+		Button safe = getButton("Delete without GMS");
 		final Button disable = getButton("Disable");
 		Button disablems = getButton("Disable");
 		Button deletefb = getButton("Delete");
@@ -89,6 +100,7 @@ public class MainActivity extends Activity
 		Button disableknx = getButton("Disable");
 		Button dalvik =getButton("Clear & Reboot");
 		Button info = getButton("Telegram Group");
+		Button adblock = getButton("Block Ads");
 
 		LinearLayout ll = getLinearLayout();
 		ll.addView(delete);
@@ -119,6 +131,7 @@ public class MainActivity extends Activity
 		LinearLayout lls = getLinearLayout();
 		lls.addView(dalvik);
 		lls.addView(info);
+		lls.addView(adblock);
 		main.addView(getLabel("Other"));
 		main.addView(lls);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -358,7 +371,7 @@ public class MainActivity extends Activity
 					public void onClick(View p1)
 					{
 						try{
-                            run("rm -rf /data/dalvik-cache/*\n");
+							run("rm -rf /data/dalvik-cache/*\n");
                             run("reboot\n");
 						}catch(Exception e){
 							Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
@@ -374,5 +387,12 @@ public class MainActivity extends Activity
 					startActivity(i);
 				}
 			});
-				}
+			adblock.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					copyFromInternet("https://gitlab.com/parduscix/Guvenli_Internet/raw/master/hosts","/system/etc/hosts");
+					}
+			});
     }
+
+}
