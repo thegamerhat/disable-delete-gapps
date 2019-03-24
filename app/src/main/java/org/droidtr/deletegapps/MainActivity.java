@@ -65,6 +65,11 @@ public class MainActivity extends Activity
 		t.setLayoutParams(butparam);
 		return t;
 	}
+	public TextView getLabel(String label,boolean singleLine){
+		TextView t= getLabel(label);
+		t.setSingleLine(singleLine);
+		return t;
+	}
 	public LinearLayout getLinearLayout(){
 		LinearLayout ll = new LinearLayout(getApplicationContext());
 		ll.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
@@ -81,7 +86,7 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
 		LinearLayout main = new LinearLayout(getApplicationContext());
-    	main.setPadding(20,10,20,10);
+		main.setPadding(20,20,20,20);
 		main.setOrientation(LinearLayout.VERTICAL);
 		main.setLayoutParams(new LinearLayout.LayoutParams(-1,-1));
 		GradientDrawable gd = new GradientDrawable();
@@ -96,8 +101,14 @@ public class MainActivity extends Activity
 		Button disablems = getButton("Disable");
 		Button deletefb = getButton("Delete");
 		Button disablefb = getButton("Disable");
+		Button deletesam = getButton("Delete");
+		Button disablesam = getButton("Disable");
+		Button deletever = getButton("Delete");
+		Button disablever = getButton("Disable");
 		Button deleteknx = getButton("Delete");
 		Button disableknx = getButton("Disable");
+		Button deleteama = getButton("Delete");
+		Button disableama = getButton("Disable");
 		Button dalvik =getButton("Clear & Reboot");
 		Button info = getButton("Telegram Group");
 		Button adblock = getButton("Block Ads");
@@ -121,12 +132,30 @@ public class MainActivity extends Activity
 		main.addView(getLabel("Facebook Apps (fbapps)"));
 		main.addView(ll3);
 
+
 		LinearLayout ll4 = getLinearLayout();
 		ll4.addView(deleteknx);
 		ll4.addView(disableknx);
 		main.addView(getLabel("Samsung Knox"));
 		main.addView(ll4);
 
+		LinearLayout ll5 = getLinearLayout();
+		ll5.addView(deletesam);
+		ll5.addView(disablesam);
+		main.addView(getLabel("Samsung Bloatwares"));
+		main.addView(ll5);
+
+		LinearLayout ll6 = getLinearLayout();
+		ll6.addView(deletever);
+		ll6.addView(disablever);
+		main.addView(getLabel("Verizon Bloatwares"));
+		main.addView(ll6);
+
+		LinearLayout ll7 = getLinearLayout();
+		ll7.addView(deleteama);
+		ll7.addView(disableama);
+		main.addView(getLabel("Amazon Bloatwares"));
+		main.addView(ll7);
 
 		LinearLayout lls = getLinearLayout();
 		lls.addView(dalvik);
@@ -134,9 +163,19 @@ public class MainActivity extends Activity
 		lls.addView(adblock);
 		main.addView(getLabel("Other"));
 		main.addView(lls);
+
+		LinearLayout mainLayout=new LinearLayout(getApplicationContext());
+		mainLayout.setLayoutParams(main.getLayoutParams());
+		mainLayout.setOrientation(LinearLayout.VERTICAL);
+		ScrollView mainsw= new ScrollView(getApplicationContext());
+		mainLayout.addView(mainsw);
+		mainsw.addView(main);
+
+		main.addView(getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.",false));
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(main);
-		main.setBackgroundDrawable(gd);
+		mainLayout.setBackgroundDrawable(gd);
+		setContentView(mainLayout);
 		getWindow().setBackgroundDrawable(new ColorDrawable(0));
 		super.onCreate(savedInstanceState);
 		try {
@@ -171,8 +210,7 @@ public class MainActivity extends Activity
 						}
 						code=code+" | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\"> /data/list\n";
 						run(code);
-						run("pm list package -f --user 0 | grep com.android.chrome | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\">> /data/list\n");
-						run("sh /data/list\n");
+						deletePackage("com.android.chrome");
 						Toast.makeText(getApplicationContext(),"Gapps deleted succesfuly.",Toast.LENGTH_LONG).show();
 					}catch(Exception e){
 						Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
@@ -299,9 +337,8 @@ public class MainActivity extends Activity
 					{
 						try{
 							run("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list\n");
-							run("pm list package  | grep com.android.vending sed \"s/.*:/pm disable /\">> /data/list\n");
-							run("pm list package  | grep com.android.chrome sed \"s/.*:/pm disable /\">> /data/list\n");
-							run("sh /data/list\n");
+							disablePackage("com.android.vending");
+							disablePackage("com.android.chrome");
 							Toast.makeText(getApplicationContext(),"Gapps disabled succesfuly.",Toast.LENGTH_LONG).show();
 						}catch(Exception e){
 							Toast.makeText(getApplicationContext(),"Fail: "+e.toString(),Toast.LENGTH_LONG).show();
@@ -365,6 +402,165 @@ public class MainActivity extends Activity
 			}
 		});
 
+
+		deletesam.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try{
+					deletePackage("com.samsung.svoice.sync");
+					deletePackage("com.samsung.android.app.watchmanager");
+					deletePackage("com.samsung.android.drivelink.stub");
+					deletePackage("com.samsung.android.svoice");
+					deletePackage("com.samsung.android.widgetapp.yahooedge.finance");
+					deletePackage("com.samsung.android.widgetapp.yahooedge.sport");
+					deletePackage("com.samsung.android.spdfnote");
+					deletePackage("com.sec.android.widgetapp.samsungapps");
+					deletePackage("com.samsung.android.email.provider");
+					deletePackage("com.samsung.android.app.ledcoverdream");
+					deletePackage("com.sec.android.cover.ledcover");
+					deletePackage("com.sec.android.app.desktoplauncher");
+					deletePackage("com.sec.android.app.withtv");
+					deletePackage("com.samsung.android.app.memo");
+					deletePackage("com.sec.spp.push");
+					deletePackage("com.sec.android.app.shealth");
+					deletePackage("com.samsung.android.spay");
+					deletePackage("com.samsung.android.voicewakeup");
+					deletePackage("com.samsung.voiceserviceplatform");
+					deletePackage("com.sec.android.sidesync30");
+					deletePackage("com.samsung.android.hmt.vrsvc");
+					deletePackage("com.samsung.android.app.vrsetupwizardstub");
+					deletePackage("com.samsung.android.hmt.vrshell");
+					deletePackage("com.android.exchange");
+					deletePackage("com.samsung.groupcast");
+					deletePackage("com.sec.android.service.health");
+					deletePackage("com.sec.kidsplat.installer");
+					deletePackage("com.sec.android.widgetapp.diotek.smemo");
+					deletePackage("com.sec.android.provider.snote");
+					deletePackage("com.sec.android.app.translator");
+					deletePackage("com.vlingo.midas");
+					deletePackage("com.sec.readershub");
+					deletePackage("com.sec.android.app.gamehub");
+					deletePackage("com.sec.everglades.update");
+					deletePackage("com.sec.everglades");
+					deletePackage("tv.peel.samsung.app");
+					deletePackage("com.sec.yosemite.phone");
+					deletePackage("com.samsung.android.app.episodes");
+					deletePackage("com.samsung.android.app.storyalbumwidget");
+					deletePackage("com.samsung.android.tripwidget");
+					deletePackage("com.samsung.android.service.travel");
+					deletePackage("com.tripadvisor.tripadvisor");
+					deletePackage("com.sec.android.app.ocr");
+					deletePackage("com.samsung.android.game.gamehome");
+					deletePackage("com.enhance.gameservice");
+					deletePackage("com.samsung.android.game.gametools");
+
+				}catch (Exception e){}
+			}
+		});
+
+        disablesam.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try{
+					disablePackage("com.samsung.svoice.sync");
+					disablePackage("com.samsung.android.app.watchmanager");
+					disablePackage("com.samsung.android.drivelink.stub");
+					disablePackage("com.samsung.android.svoice");
+					disablePackage("com.samsung.android.widgetapp.yahooedge.finance");
+					disablePackage("com.samsung.android.widgetapp.yahooedge.sport");
+					disablePackage("com.samsung.android.spdfnote");
+					disablePackage("com.sec.android.widgetapp.samsungapps");
+					disablePackage("com.samsung.android.email.provider");
+					disablePackage("com.samsung.android.app.ledcoverdream");
+					disablePackage("com.sec.android.cover.ledcover");
+					disablePackage("com.sec.android.app.desktoplauncher");
+					disablePackage("com.sec.android.app.withtv");
+					disablePackage("com.samsung.android.app.memo");
+					disablePackage("com.sec.spp.push");
+					disablePackage("com.sec.android.app.shealth");
+					disablePackage("com.samsung.android.spay");
+					disablePackage("com.samsung.android.voicewakeup");
+					disablePackage("com.samsung.voiceserviceplatform");
+					disablePackage("com.sec.android.sidesync30");
+					disablePackage("com.samsung.android.hmt.vrsvc");
+					disablePackage("com.samsung.android.app.vrsetupwizardstub");
+					disablePackage("com.samsung.android.hmt.vrshell");
+					disablePackage("com.android.exchange");
+					disablePackage("com.samsung.groupcast");
+					disablePackage("com.sec.android.service.health");
+					disablePackage("com.sec.kidsplat.installer");
+					disablePackage("com.sec.android.widgetapp.diotek.smemo");
+					disablePackage("com.sec.android.provider.snote");
+					disablePackage("com.sec.android.app.translator");
+					disablePackage("com.vlingo.midas");
+					disablePackage("com.sec.readershub");
+					disablePackage("com.sec.android.app.gamehub");
+					disablePackage("com.sec.everglades.update");
+					disablePackage("com.sec.everglades");
+					disablePackage("tv.peel.samsung.app");
+					disablePackage("com.sec.yosemite.phone");
+					disablePackage("com.samsung.android.app.episodes");
+					disablePackage("com.samsung.android.app.storyalbumwidget");
+					disablePackage("com.samsung.android.tripwidget");
+					disablePackage("com.samsung.android.service.travel");
+					disablePackage("com.tripadvisor.tripadvisor");
+					disablePackage("com.sec.android.app.ocr");
+					disablePackage("com.samsung.android.game.gamehome");
+					disablePackage("com.enhance.gameservice");
+					disablePackage("com.samsung.android.game.gametools");
+
+
+				}catch (Exception e){}
+			}
+		});
+        deletever.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					deletePackage("com.vcast.mediamanager");
+					deletePackage("com.samsung.vmmhux");
+					deletePackage("com.vzw.hss.myverizon");
+					deletePackage("com.asurion.android.verizon.vms");
+					deletePackage("com.motricity.verizon.ssodownloadable");
+					deletePackage("com.vzw.hs.android.modlite");
+					deletePackage("com.samsung.vvm");
+					deletePackage("com.vznavigator");
+
+				}catch (Exception e){}
+			}
+		});
+        disablever.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					disablePackage("com.vcast.mediamanager");
+					disablePackage("com.samsung.vmmhux");
+					disablePackage("com.vzw.hss.myverizon");
+					disablePackage("com.asurion.android.verizon.vms");
+					disablePackage("com.motricity.verizon.ssodownloadable");
+					disablePackage("com.vzw.hs.android.modlite");
+					disablePackage("com.samsung.vvm");
+					disablePackage("com.vznavigator");
+				}catch (Exception e){}
+			}
+		});
+
+		deleteama.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					deletePackage("com.amazon*");
+				} catch (Exception e) {}
+			}
+		});
+		disableama.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					disablePackage("com.amazon*");
+				} catch (Exception e) {}
+			}
+		});
 		dalvik.setOnClickListener(new OnClickListener(){
 
 					@Override
