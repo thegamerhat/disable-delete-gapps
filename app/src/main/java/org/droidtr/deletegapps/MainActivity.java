@@ -109,6 +109,8 @@ public class MainActivity extends Activity
 		Button disableknx = getButton("Disable");
 		Button deleteama = getButton("Delete");
 		Button disableama = getButton("Disable");
+		Button deletemis = getButton("Delete");
+		Button disablemis = getButton("Disable");
 		Button dalvik =getButton("Clear & Reboot");
 		Button info = getButton("Telegram Group");
 		Button adblock = getButton("Block Ads");
@@ -156,6 +158,12 @@ public class MainActivity extends Activity
 		ll7.addView(disableama);
 		main.addView(getLabel("Amazon Bloatwares"));
 		main.addView(ll7);
+
+		LinearLayout llm = getLinearLayout();
+		llm.addView(deletemis);
+		llm.addView(disablemis);
+		main.addView(getLabel("Miscellaneous Bloatware"));
+		main.addView(llm);
 
 		LinearLayout lls = getLinearLayout();
 		lls.addView(dalvik);
@@ -561,6 +569,41 @@ public class MainActivity extends Activity
 				} catch (Exception e) {}
 			}
 		});
+		deletemis.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					deletePackage("flipboard.boxer.app");
+					deletePackage("flipboard.app");
+					deletePackage("com.hancom.office.editor.hidden ");
+					deletePackage("com.audible.application");
+					deletePackage("com.blurb.checkout");
+					deletePackage("com.cequint.ecid");
+					deletePackage("com.imdb.mobile");
+					deletePackage("com.gotv.nflgamecenter.us.lite");
+					deletePackage("com.infraware.polarisoffice5");
+					deletePackage("com.nuance.swype.input");
+				}catch (Exception e){}
+			}
+		});
+		disablemis.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try{
+					disablePackage("flipboard.boxer.app");
+					disablePackage("flipboard.app");
+					disablePackage("com.hancom.office.editor.hidden ");
+					disablePackage("com.audible.application");
+					disablePackage("com.blurb.checkout");
+					disablePackage("com.cequint.ecid");
+					disablePackage("com.imdb.mobile");
+					disablePackage("com.gotv.nflgamecenter.us.lite");
+					disablePackage("com.infraware.polarisoffice5");
+					disablePackage("com.nuance.swype.input");
+				}catch (Exception e){}
+			}
+		});
+
 		dalvik.setOnClickListener(new OnClickListener(){
 
 					@Override
