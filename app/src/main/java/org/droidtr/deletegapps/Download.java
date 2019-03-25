@@ -1,8 +1,11 @@
 package org.droidtr.deletegapps;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.PowerManager;
+import android.os.Build;
+import android.os.SystemClock;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -15,11 +18,19 @@ import java.net.URL;
 
 public class Download extends AsyncTask<String, Integer, String> {
 
-    private Context context;
-    private PowerManager.WakeLock mWakeLock;
+    private Context ctx;
+    ProgressDialog dialog;
 
     public Download(Context context) {
-        this.context = context;
+        ctx = context;
+        if(Build.VERSION.SDK_INT>21){
+            ctx.setTheme(android.R.style.Theme_Material_Dialog);
+        }else if(Build.VERSION.SDK_INT>14){
+            ctx.setTheme(android.R.style.Theme_Holo_Dialog);
+        }else{
+            ctx.setTheme(android.R.style.Theme_Dialog);
+        }
+        dialog = new ProgressDialog(ctx);
     }
 
     public void run(String cmd) throws IOException {
@@ -33,10 +44,25 @@ public class Download extends AsyncTask<String, Integer, String> {
     }
 
     @Override
+    protected void onPreExecute() {
+        dialog.setTitle("Please Wait");
+        dialog.setMessage("Downloading...");
+        dialog.show();
+
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        dialog.dismiss();
+    }
+    @Override
     protected String doInBackground(String... sUrl) {
         InputStream input = null;
         OutputStream output = null;
         HttpURLConnection connection = null;
+
+
+
         try {
             URL url = new URL(sUrl[0]);
             connection = (HttpURLConnection) url.openConnection();
@@ -48,7 +74,8 @@ public class Download extends AsyncTask<String, Integer, String> {
 
             // download the file
             input = connection.getInputStream();
-            output = new FileOutputStream(new File("/data/data/org.droidtr.deletegapps/tmp"));
+            String name=SystemClock.currentThreadTimeMillis()+"";
+            output = new FileOutputStream(new File("/data/data/org.droidtr.deletegapps/"+name));
 
             byte data[] = new byte[4096];
             long total = 0;
@@ -67,10 +94,10 @@ public class Download extends AsyncTask<String, Integer, String> {
             }
             output.close();
             run("mount -o remount,rw /system");
-            run("umount /system/etc/hosts");
-            run("cp -prfv /data/data/org.droidtr.deletegapps/tmp " + sUrl[1]);
-            run("rm -f /data/data/org.droidtr.deletegapps/tmp");
-            run("chmod 644 /system/etc/hosts");
+            run("umount "+sUrl[1]);
+            run("cp -prfv /data/data/org.droidtr.deletegapps/"+name+" " + sUrl[1]);
+            run("rm -f /data/data/org.droidtr.deletegapps/"+name);
+            run("chmod 644 "+sUrl[1]);
         } catch (Exception e) {
             return e.toString();
         }
