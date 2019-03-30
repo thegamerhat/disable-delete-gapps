@@ -24,12 +24,16 @@ import java.io.IOException;
 public class MainActivity extends Activity {
     Process process = null;
     DataOutputStream dataOutputStream = null;
-
+    String cmdlist="";
+    TextView label=null;
     public void run(String cmd) throws IOException {
-        dataOutputStream.writeBytes(cmd + " \n");
-        dataOutputStream.flush();
+        cmdlist=cmdlist+cmd+"\n";
     }
-
+    public void sync(){
+        String tmp=cmdlist;
+        cmdlist="";
+        new Run(this).execute(tmp);
+    }
     public void init() {
         if (Build.VERSION.SDK_INT > 21) {
             setTheme(android.R.style.Theme_Material_Dialog);
@@ -39,8 +43,7 @@ public class MainActivity extends Activity {
             setTheme(android.R.style.Theme_Dialog);
         }
         try {
-            process = Runtime.getRuntime().exec("su");
-            dataOutputStream = new DataOutputStream(process.getOutputStream());
+            label=getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false);
             run("pm list package -f --user 0 > /data/package-list");
         } catch (Exception e) {
         }
@@ -101,7 +104,7 @@ public class MainActivity extends Activity {
     }
 
     public void disablePackage(String name) throws IOException {
-        run("pm disable " + name + " &");
+        run("pm disable " + name );
     }
 
     @Override
@@ -200,8 +203,7 @@ public class MainActivity extends Activity {
         ScrollView mainsw = new ScrollView(getApplicationContext());
         mainLayout.addView(mainsw);
         mainsw.addView(main);
-
-        main.addView(getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false));
+        main.addView(label);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mainLayout.setBackgroundDrawable(gd);
@@ -241,6 +243,7 @@ public class MainActivity extends Activity {
                     run("sh /data/list");
                     deletePackage("com.android.chrome");
                     deletePackage("com.android.vending");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Gapps deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -255,6 +258,7 @@ public class MainActivity extends Activity {
                     //delete all msapps
                     deletePackage("microsoft");
                     deletePackage("com.skype.raider");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Microsoft Apps deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -289,6 +293,7 @@ public class MainActivity extends Activity {
                     run("rm -rf /system/preloadedkiosk/kioskdefault");
                     run("rm -rf /system/preloadedsso/ssoservice.apk_");
                     run("rm -rf /system/recovery-from-boot.p");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Samsung Knox deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -304,6 +309,7 @@ public class MainActivity extends Activity {
                     deletePackage("facebook");
                     deletePackage("com.instagram.android");
                     deletePackage("com.whatsapp");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Facebook Apps deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -315,10 +321,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    run("rm -rf /data/app/*{g,G}oogle*  &");
-                    run("rm -rf /data/data/*{g,G}oogle* &");
-                    run("rm -rf /data/app/*com.android.vending* &");
-                    run("rm -rf /data/data/*com.android.vending* &");
+                    run("rm -rf /data/app/*{g,G}oogle*  ");
+                    run("rm -rf /data/data/*{g,G}oogle* ");
+                    run("rm -rf /data/app/*com.android.vending* ");
+                    run("rm -rf /data/data/*com.android.vending* ");
                     //delete without gmscore
                     String code = "cat /data/package-list | grep google";
                     String[] list = {
@@ -347,6 +353,7 @@ public class MainActivity extends Activity {
                     code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\"| sed \"s/$/ \\&/\"> /data/list";
                     run(code);
                     run("sh /data/list");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Gapps cleared successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -361,6 +368,7 @@ public class MainActivity extends Activity {
                     run("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list");
                     disablePackage("com.android.vending");
                     disablePackage("com.android.chrome");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Gapps disabled successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -374,6 +382,7 @@ public class MainActivity extends Activity {
                 try {
                    disablePackage("microsoft");
                     disablePackage("com.skype.raider");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Microsoft apps disabled successfully.", Toast.LENGTH_LONG).show();
 
                 } catch (Exception e) {
@@ -395,6 +404,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.sec.android.app.sysscope");
                     disablePackage("com.samsung.klmsagent");
                     disablePackage("com.sec.android.diagmonagent");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Samsung Knox disabled successfully.", Toast.LENGTH_LONG).show();
 
                 } catch (Exception e) {
@@ -411,6 +421,7 @@ public class MainActivity extends Activity {
                     disablePackage("facebook");
                     disablePackage("com.instagram.android");
                     disablePackage("com.whatsapp");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Facebook apps disabled successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -469,6 +480,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.samsung.android.game.gamehome");
                     deletePackage("com.enhance.gameservice");
                     deletePackage("com.samsung.android.game.gametools");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Samsung BloatWares deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -525,6 +537,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.samsung.android.game.gamehome");
                     disablePackage("com.enhance.gameservice");
                     disablePackage("com.samsung.android.game.gametools");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Samsung BloatWares disabled successfully.", Toast.LENGTH_LONG).show();
 
                 } catch (Exception e) {
@@ -543,6 +556,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.vzw.hs.android.modlite");
                     deletePackage("com.samsung.vvm");
                     deletePackage("com.vznavigator");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Verizon BloatWares deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -560,6 +574,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.vzw.hs.android.modlite");
                     disablePackage("com.samsung.vvm");
                     disablePackage("com.vznavigator");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Verizon BloatWares disabled successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -571,6 +586,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     deletePackage("com.amazon");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Amazon BloatWares deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -581,6 +597,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     disablePackage("com.amazon");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Amazon BloatWares disabled successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -611,6 +628,7 @@ public class MainActivity extends Activity {
                     run("rm -rf /system/lib/libnotes_jni.so");
                     run("rm -rf /system/lib/libnotesprovider_jni.so");
                     run("rm -rf /system/lib/libpolarisoffice_Clipboard.so");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Miscellaneaous BloatWares deleted successfully.", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                 }
@@ -630,6 +648,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.gotv.nflgamecenter.us.lite");
                     disablePackage("com.infraware.polarisoffice5");
                     disablePackage("com.nuance.swype.input");
+                    sync();
                     Toast.makeText(getApplicationContext(), "Miscellaneaous BloatWares disabled successfully.", Toast.LENGTH_LONG).show();
 
                 } catch (Exception e) {
@@ -650,6 +669,7 @@ public class MainActivity extends Activity {
                     run("rm -rf /cache/*");
                     run("rm -rf /data/dalvik-cache/*");
                     run("reboot");
+                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
