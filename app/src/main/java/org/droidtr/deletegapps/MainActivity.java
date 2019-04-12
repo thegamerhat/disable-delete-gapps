@@ -1,51 +1,69 @@
 package org.droidtr.deletegapps;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.app.*;
+import android.content.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
+import android.net.*;
+import android.os.*;
+import android.view.*;
+import android.view.View.*;
+import android.widget.*;
+import java.io.*;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.lang.Process;
 
 public class MainActivity extends Activity {
     Process process = null;
     DataOutputStream dataOutputStream = null;
     String cmdlist="";
     TextView label=null;
-    public void run(String cmd) throws IOException {
-        cmdlist=cmdlist+cmd+"\n";
-    }
-    public void sync(){
-        String tmp=cmdlist;
-        cmdlist="";
-        new Run(this).execute(tmp);
-    }
+	java.lang.Process p = null;
+	DataOutputStream dos = null;
+    
+	public void execNoWait(final String command){
+		new AsyncTask<String,String,Void>(){
+			@Override
+			public Void doInBackground(String... params){
+				execForStringOutput(command);
+				return null;
+			}
+		}.execute();
+	}
+	public String execForStringOutput(String command) {
+		try{
+			String line;
+			StringBuilder s = new StringBuilder();
+			dos.writeBytes(command+"\n");
+			dos.flush();
+			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((line = input.readLine()) != null){
+				if(line.trim().length()>0){
+					s.append((line).trim()+"\n");
+				}
+			}
+			input.close();
+			return s.toString();
+		}catch(Exception e){
+			return "";
+		}
+	}
     public void init() {
-        if (Build.VERSION.SDK_INT > 21) {
+		try {
+		java.lang.Process p = Runtime.getRuntime().exec("su");
+		dos = new DataOutputStream(p.getOutputStream());
+		execForStringOutput("mount -o remount,rw /system");
+        execForStringOutput("mount -o remount,rw /vendor");
+		if (Build.VERSION.SDK_INT > 21) {
             setTheme(android.R.style.Theme_Material_Dialog);
         } else if (Build.VERSION.SDK_INT > 14) {
             setTheme(android.R.style.Theme_Holo_Dialog);
         } else {
             setTheme(android.R.style.Theme_Dialog);
         }
-        try {
-            label=getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false);
-            run("pm list package -f --user 0 > /data/package-list");
+             label=getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false);
         } catch (Exception e) {
+	finish();
         }
 
     }
@@ -98,18 +116,18 @@ public class MainActivity extends Activity {
         return ll;
     }
 
-    public void deletePackage(String name) throws IOException {
-        run("cat /data/package-list | grep " + name.trim() + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/list");
-        run("sh /data/list");
+    public void deletePackage(String name){
+        execForStringOutput("pm list package -f --user 0 | grep " + name.trim() + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/target");
+        execForStringOutput("sh /data/target");
     }
 
-    public void disablePackage(String name) throws IOException {
-        run("pm disable " + name.trim() );
+    public void disablePackage(String name){
+        execNoWait("pm disable " + name.trim() );
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        init();
+		init();
         LinearLayout main = new LinearLayout(getApplicationContext());
         main.setPadding(20, 20, 20, 20);
         main.setOrientation(LinearLayout.VERTICAL);
@@ -210,26 +228,20 @@ public class MainActivity extends Activity {
         setContentView(mainLayout);
         getWindow().setBackgroundDrawable(new ColorDrawable(0));
         super.onCreate(savedInstanceState);
-        try {
-            run("mount -o rw,remount /system");
-            run("mount -o rw,remount /vendor");
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
-        }
+        
 
         delete.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View p1) {
                 try {
-                    run("sed -i \"s/ro.setupwizard.mode=ENABLED/ro.setupwizard.mode=DISABLED/\" /system/build.prop ");
-                    run("rm -rf /data/app/*{g,G}oogle* ");
-                    run("rm -rf /data/data/*{g,G}oogle*");
-                    run("rm -rf /data/app/*com.android.vending*");
-                    run("rm -rf /data/data/*com.android.vending*");
+                    execForStringOutput("sed -i \"s/ro.setupwizard.mode=ENABLED/ro.setupwizard.mode=DISABLED/\" /system/build.prop ");
+                    execForStringOutput("rm -rf /data/app/*{g,G}oogle* ");
+                    execForStringOutput("rm -rf /data/data/*{g,G}oogle*");
+                    execForStringOutput("rm -rf /data/app/*com.android.vending*");
+                    execForStringOutput("rm -rf /data/data/*com.android.vending*");
                     //delete all gapps
-                    String code = "cat /data/package-list | grep google";
+                    String code = "pm list package -f --user 0  | grep google";
                     String[] list = {
                             "com.google.android.ext.services",
                             "com.google.android.packageinstaller",
@@ -238,12 +250,11 @@ public class MainActivity extends Activity {
                     for (int i = 0; i < list.length; i++) {
                         code = code + " | grep -v \"" + list[i] + "\"";
                     }
-                    code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf | sed \"s/$/ \\&/\"/\"> /data/list";
-                    run(code);
-                    run("sh /data/list");
+                    code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/list";
+                    execForStringOutput(code);
+                    execNoWait("sh /data/list");
                     deletePackage("com.android.chrome");
                     deletePackage("com.android.vending");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -257,7 +268,6 @@ public class MainActivity extends Activity {
                     //delete all msapps
                     deletePackage("microsoft");
                     deletePackage("com.skype.raider");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -277,21 +287,20 @@ public class MainActivity extends Activity {
                     deletePackage("com.sec.android.app.sysscope");
                     deletePackage("com.samsung.klmsagent");
                     deletePackage("com.sec.android.diagmonagent");
-                    run("rm -rf /system/container/ContainerAgent2");
-                    run("rm -rf /system/container/KnoxBBCProivder");
-                    run("rm -rf /system/container/KnoxBluetooth");
-                    run("rm -rf /system/container/KnoxKeyguard");
-                    run("rm -rf /system/container/KnoxPackageVerifier");
-                    run("rm -rf /system/container/KnoxShortcuts");
-                    run("rm -rf /system/container/KnoxSwitcher");
-                    run("rm -rf /system/container/resources");
-                    run("rm -rf /system/container/SharedDeviceKeyguard");
-                    run("rm -rf /system/etc/secure_storage/com.sec.knox.store");
-                    run("rm -rf /system/etc/recovery-resource.dat");
-                    run("rm -rf /system/preloadedkiosk/kioskdefault");
-                    run("rm -rf /system/preloadedsso/ssoservice.apk_");
-                    run("rm -rf /system/recovery-from-boot.p");
-                    sync();
+                    execForStringOutput("rm -rf /system/container/ContainerAgent2");
+                    execForStringOutput("rm -rf /system/container/KnoxBBCProivder");
+                    execForStringOutput("rm -rf /system/container/KnoxBluetooth");
+                    execForStringOutput("rm -rf /system/container/KnoxKeyguard");
+                    execForStringOutput("rm -rf /system/container/KnoxPackageVerifier");
+                    execForStringOutput("rm -rf /system/container/KnoxShortcuts");
+                    execForStringOutput("rm -rf /system/container/KnoxSwitcher");
+                    execForStringOutput("rm -rf /system/container/resources");
+                    execForStringOutput("rm -rf /system/container/SharedDeviceKeyguard");
+                    execForStringOutput("rm -rf /system/etc/secure_storage/com.sec.knox.store");
+                    execForStringOutput("rm -rf /system/etc/recovery-resource.dat");
+                    execForStringOutput("rm -rf /system/preloadedkiosk/kioskdefault");
+                    execForStringOutput("rm -rf /system/preloadedsso/ssoservice.apk_");
+                    execForStringOutput("rm -rf /system/recovery-from-boot.p");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -306,7 +315,6 @@ public class MainActivity extends Activity {
                     deletePackage("facebook");
                     deletePackage("com.instagram.android");
                     deletePackage("com.whatsapp");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -317,12 +325,12 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    run("rm -rf /data/app/*{g,G}oogle*  ");
-                    run("rm -rf /data/data/*{g,G}oogle* ");
-                    run("rm -rf /data/app/*com.android.vending* ");
-                    run("rm -rf /data/data/*com.android.vending* ");
+                    execForStringOutput("rm -rf /data/app/*{g,G}oogle*  ");
+                    execForStringOutput("rm -rf /data/data/*{g,G}oogle* ");
+                    execForStringOutput("rm -rf /data/app/*com.android.vending* ");
+                    execForStringOutput("rm -rf /data/data/*com.android.vending* ");
                     //delete without gmscore
-                    String code = "cat /data/package-list | grep google";
+                    String code = "pm list package -f --user 0  | grep google";
                     String[] list = {
                             "com.google.android.gms",
                             "com.google.android.ext.services",
@@ -346,10 +354,9 @@ public class MainActivity extends Activity {
                     for (int i = 0; i < list.length; i++) {
                         code = code + " | grep -v \"" + list[i] + "\"";
                     }
-                    code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\"| sed \"s/$/ \\&/\"> /data/list";
-                    run(code);
-                    run("sh /data/list");
-                    sync();
+                    code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/list";
+                    execForStringOutput(code);
+                    execForStringOutput("sh /data/list");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -360,10 +367,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    run("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list");
+                    execForStringOutput("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list");
                     disablePackage("com.android.vending");
                     disablePackage("com.android.chrome");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -376,7 +382,6 @@ public class MainActivity extends Activity {
                 try {
                    disablePackage("microsoft");
                     disablePackage("com.skype.raider");
-                    sync();
 
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -397,7 +402,6 @@ public class MainActivity extends Activity {
                     disablePackage("com.sec.android.app.sysscope");
                     disablePackage("com.samsung.klmsagent");
                     disablePackage("com.sec.android.diagmonagent");
-                    sync();
 
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -413,7 +417,6 @@ public class MainActivity extends Activity {
                     disablePackage("facebook");
                     disablePackage("com.instagram.android");
                     disablePackage("com.whatsapp");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -471,7 +474,6 @@ public class MainActivity extends Activity {
                     deletePackage("com.samsung.android.game.gamehome");
                     deletePackage("com.enhance.gameservice");
                     deletePackage("com.samsung.android.game.gametools");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -528,7 +530,6 @@ public class MainActivity extends Activity {
                     disablePackage("com.samsung.android.game.gamehome");
                     disablePackage("com.enhance.gameservice");
                     disablePackage("com.samsung.android.game.gametools");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -546,7 +547,6 @@ public class MainActivity extends Activity {
                     deletePackage("com.vzw.hs.android.modlite");
                     deletePackage("com.samsung.vvm");
                     deletePackage("com.vznavigator");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -564,7 +564,6 @@ public class MainActivity extends Activity {
                     disablePackage("com.vzw.hs.android.modlite");
                     disablePackage("com.samsung.vvm");
                     disablePackage("com.vznavigator");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -576,7 +575,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     deletePackage("com.amazon");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -587,7 +585,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     disablePackage("com.amazon");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -611,18 +608,17 @@ public class MainActivity extends Activity {
                     deletePackage("com.android.cellbroadcastreceiver");
                     deletePackage("com.mobitv.client.tmobiletvhd");
                     deletePackage("us.com.dt.iq.appsource.tmobile");
-                    run("rm -rf /system/media/bootanimation.zip");
-                    run("rm -rf /system/vendor/pittpatt");
-                    run("rm -rf /system/customize/");
-                    run("rm -rf /system/media/video/");
-                    run("rm -rf /system/lib/libLaputaEngine.so");
-                    run("rm -rf /system/lib/libLaputaLbJni.so");
-                    run("rm -rf /system/lib/libLaputaLbProviderJni.so");
-                    run("rm -rf /system/lib/libLaputaLogJni.so");
-                    run("rm -rf /system/lib/libnotes_jni.so");
-                    run("rm -rf /system/lib/libnotesprovider_jni.so");
-                    run("rm -rf /system/lib/libpolarisoffice_Clipboard.so");
-                    sync();
+                    execForStringOutput("rm -rf /system/media/bootanimation.zip");
+                    execForStringOutput("rm -rf /system/vendor/pittpatt");
+                    execForStringOutput("rm -rf /system/customize/");
+                    execForStringOutput("rm -rf /system/media/video/");
+                    execForStringOutput("rm -rf /system/lib/libLaputaEngine.so");
+                    execForStringOutput("rm -rf /system/lib/libLaputaLbJni.so");
+                    execForStringOutput("rm -rf /system/lib/libLaputaLbProviderJni.so");
+                    execForStringOutput("rm -rf /system/lib/libLaputaLogJni.so");
+                    execForStringOutput("rm -rf /system/lib/libnotes_jni.so");
+                    execForStringOutput("rm -rf /system/lib/libnotesprovider_jni.so");
+                    execForStringOutput("rm -rf /system/lib/libpolarisoffice_Clipboard.so");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -646,7 +642,6 @@ public class MainActivity extends Activity {
                     disablePackage("com.android.cellbroadcastreceiver");
                     disablePackage("com.mobitv.client.tmobiletvhd");
                     disablePackage("us.com.dt.iq.appsource.tmobile");
-                    sync();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -658,15 +653,14 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    run("rm -rf /data/data/*/cache/");
-                    run("rm -rf /sdcard/DCIM/.thumbnails/");
-                    run("rm -rf /sdcard/Android/data/*/cache/");
-                    run("rm -rf /storage/*/Android/data/*/cache/");
-                    run("rm -rf /storage/*/DCIM/.thumbnails/");
-                    run("rm -rf /cache/*");
-                    run("rm -rf /data/dalvik-cache/*");
-                    run("reboot");
-                    sync();
+                    execForStringOutput("rm -rf /data/data/*/cache/");
+                    execForStringOutput("rm -rf /sdcard/DCIM/.thumbnails/");
+                    execForStringOutput("rm -rf /sdcard/Android/data/*/cache/");
+                    execForStringOutput("rm -rf /storage/*/Android/data/*/cache/");
+                    execForStringOutput("rm -rf /storage/*/DCIM/.thumbnails/");
+                    execForStringOutput("rm -rf /cache/*");
+                    execForStringOutput("rm -rf /data/dalvik-cache/*");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -690,3 +684,4 @@ public class MainActivity extends Activity {
     }
 
 }
+
