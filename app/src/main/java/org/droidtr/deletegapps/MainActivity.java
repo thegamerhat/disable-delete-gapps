@@ -153,7 +153,9 @@ public class MainActivity extends Activity {
         Button deleteama = getButton("Delete");
         Button disableama = getButton("Disable");
         Button deletemis = getButton("Delete");
-        Button disablemis = getButton("Disable");
+        final Button disablemis = getButton("Disable");
+        Button deletetur = getButton("Delete");
+        Button disabletur = getButton("Disable");
         Button dalvik = getButton("Clear & Reboot");
         Button info = getButton("Telegram Group");
         Button adblock = getButton("Block Ads");
@@ -201,6 +203,12 @@ public class MainActivity extends Activity {
         ll7.addView(disableama);
         main.addView(getLabel("Amazon Bloatwares"));
         main.addView(ll7);
+
+        LinearLayout ll8 = getLinearLayout();
+        ll8.addView(deletetur);
+        ll8.addView(disabletur);
+        main.addView(getLabel("Mobile operator Bloatwares"));
+        main.addView(ll8);
 
         LinearLayout llm = getLinearLayout();
         llm.addView(deletemis);
@@ -368,6 +376,7 @@ public class MainActivity extends Activity {
             public void onClick(View p1) {
                 try {
                     execForStringOutput("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list");
+                    execForStringOutput("sh /data/target");
                     disablePackage("com.android.vending");
                     disablePackage("com.android.chrome");
                 } catch (Exception e) {
@@ -381,7 +390,7 @@ public class MainActivity extends Activity {
             public void onClick(View p1) {
                 try {
                    disablePackage("microsoft");
-                    disablePackage("com.skype.raider");
+                   disablePackage("com.skype.raider");
 
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -547,6 +556,8 @@ public class MainActivity extends Activity {
                     deletePackage("com.vzw.hs.android.modlite");
                     deletePackage("com.samsung.vvm");
                     deletePackage("com.vznavigator");
+                    deletePackage(" com.verizon.permissions.qos");
+                    deletePackage("com.verizon.vzwavs");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -564,6 +575,8 @@ public class MainActivity extends Activity {
                     disablePackage("com.vzw.hs.android.modlite");
                     disablePackage("com.samsung.vvm");
                     disablePackage("com.vznavigator");
+                    disablePackage(" com.verizon.permissions.qos");
+                    disablePackage("com.verizon.vzwavs");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -590,6 +603,36 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        deletetur.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    deletePackage("turkcell");
+                    deletePackage("com.ttech.android.onlineislem");
+                    deletePackage("vodafone");
+                    deletePackage("com.tmob.AveaOIM");
+                    deletePackage("turktelekom");
+                    deletePackage("avea");
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        disabletur.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    disablePackage("turkcell");
+                    disablePackage("com.ttech.android.onlineislem");
+                    disablePackage("vodafone");
+                    disablePackage("com.tmob.AveaOIM");
+                    disablePackage("turktelekom");
+                    disablePackage("avea");
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         deletemis.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -608,6 +651,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.android.cellbroadcastreceiver");
                     deletePackage("com.mobitv.client.tmobiletvhd");
                     deletePackage("us.com.dt.iq.appsource.tmobile");
+                    deletePackage("com.generalmobile.assistant");
                     execForStringOutput("rm -rf /system/media/bootanimation.zip");
                     execForStringOutput("rm -rf /system/vendor/pittpatt");
                     execForStringOutput("rm -rf /system/customize/");
@@ -642,6 +686,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.android.cellbroadcastreceiver");
                     disablePackage("com.mobitv.client.tmobiletvhd");
                     disablePackage("us.com.dt.iq.appsource.tmobile");
+                    disablePackage("com.generalmobile.assistant");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
