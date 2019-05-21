@@ -24,6 +24,7 @@ all: clear build zipalign sign
 build:
 	mkdir bin
 	mkdir gen
+	mkdir assets src res || true
 	$(AAPT) package -v -f -I $(AJAR) -M AndroidManifest.xml -A assets -S res -m -J gen -F bin/resources.ap_
 	$(JAVAC) $(JFLAGS) -classpath $(AJAR) -sourcepath $(SRC) -sourcepath gen -d bin $(shell find $(SRC) -name *.java)
 	$(ADX) --dex --output=bin/classes.dex bin
