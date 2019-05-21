@@ -7,6 +7,7 @@ AJAR=$(SDK)/platforms/android-$(TARGET)/android.jar
 ADX=$(BUILDTOOLS)/dx
 AAPT=$(BUILDTOOLS)/aapt
 JAVAC=$(JAVADIR)/javac
+JFLAGS=-source 8
 JARSIGNER=$(JAVADIR)/jarsigner
 APKSIGNER=$(BUILDTOOLS)/apksigner
 ZIPALIGN=$(BUILDTOOLS)/zipalign
@@ -24,7 +25,7 @@ build:
 	mkdir bin
 	mkdir gen
 	$(AAPT) package -v -f -I $(AJAR) -M AndroidManifest.xml -A assets -S res -m -J gen -F bin/resources.ap_
-	$(JAVAC) -classpath $(AJAR) -sourcepath $(SRC) -sourcepath gen -d bin $(shell find $(SRC) -name *.java)
+	$(JAVAC) $(JFLAGS) -classpath $(AJAR) -sourcepath $(SRC) -sourcepath gen -d bin $(shell find $(SRC) -name *.java)
 	$(ADX) --dex --output=bin/classes.dex bin
 	mv bin/resources.ap_ bin/$(NAME).ap_
 	cd bin ; $(AAPT) add $(NAME).ap_ classes.dex
