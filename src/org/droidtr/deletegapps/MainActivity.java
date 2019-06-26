@@ -53,6 +53,9 @@ public class MainActivity extends Activity {
 		java.lang.Process p = Runtime.getRuntime().exec("su");
 		dos = new DataOutputStream(p.getOutputStream());
 		execForStringOutput("mount -o remount,rw /system");
+		execForStringOutput("mount -o remount,rw /oem");
+		execForStringOutput("mount -o remount,rw /cust");
+		execForStringOutput("mount -o remount,rw /");
         execForStringOutput("mount -o remount,rw /vendor");
 		if (Build.VERSION.SDK_INT > 21) {
             setTheme(android.R.style.Theme_Material_Dialog);
@@ -723,7 +726,7 @@ public class MainActivity extends Activity {
         adblock.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                copyFromInternet("https://gitlab.com/parduscix/Guvenli_Internet/raw/master/hosts", "/system/etc/hosts");
+                copyFromInternet("https://gitlab.com/sulincix/Guvenli_Internet/raw/master/hosts", "/system/etc/hosts");
             }
         });
     }
