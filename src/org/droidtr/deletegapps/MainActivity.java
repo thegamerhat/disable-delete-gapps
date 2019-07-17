@@ -123,12 +123,14 @@ public class MainActivity extends Activity {
     }
 
     public void deletePackage(String name){
-         String code = "pm list package -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm uninstall -k --user 0 /\" | sed \"s/$/ \\&/\" > /data/list";
+         String code = "pm list package -f --user 0  | grep " + name + " | sed \"s/apk=.*/apk/\" | sed \"s/.*:/rm -rf /g\" > /data/list";
+                    execForStringOutput(code);
+         code = "pm list package -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm uninstall -k --user 0 /g\" >> /data/list";
                     execForStringOutput(code);
                     execForStringOutput("sh /data/list");
     }
     public void disablePackage(String name){
-         String code = "pm list package -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm disable /\" | sed \"s/$/ \\&/\" > /data/list";
+         String code = "pm list package -e -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm disable /g\" > /data/list";
                     execForStringOutput(code);
                     execForStringOutput("sh /data/list");
     }
@@ -167,6 +169,7 @@ public class MainActivity extends Activity {
         Button dalvik = getButton("Clear & Reboot",Color.BLACK);
         Button info = getButton("Telegram Group",Color.BLACK);
         Button adblock = getButton("Block Ads",Color.BLACK);
+        Button enable = getButton("Enable All",Color.BLACK);
 
         LinearLayout ll = getLinearLayout();
         ll.addView(delete);
@@ -225,11 +228,14 @@ public class MainActivity extends Activity {
         main.addView(llm);
 
         LinearLayout lls = getLinearLayout();
+        LinearLayout lls2 = getLinearLayout();
         lls.addView(dalvik);
         lls.addView(info);
-        lls.addView(adblock);
+        lls2.addView(adblock);
+        lls2.addView(enable);
         main.addView(getLabel("Other"));
         main.addView(lls);
+        main.addView(lls2);
 
         LinearLayout mainLayout = new LinearLayout(getApplicationContext());
         mainLayout.setLayoutParams(main.getLayoutParams());
@@ -271,7 +277,7 @@ public class MainActivity extends Activity {
                     execNoWait("sh /data/list");
                     deletePackage("com.android.chrome");
                     deletePackage("com.android.vending");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Gapps deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -285,7 +291,7 @@ public class MainActivity extends Activity {
                     //delete all msapps
                     deletePackage("microsoft");
                     deletePackage("com.skype.raider");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "MSapps deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -319,7 +325,7 @@ public class MainActivity extends Activity {
                     execForStringOutput("rm -rf /system/preloadedkiosk/kioskdefault");
                     execForStringOutput("rm -rf /system/preloadedsso/ssoservice.apk_");
                     execForStringOutput("rm -rf /system/recovery-from-boot.p");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Knox deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -334,7 +340,7 @@ public class MainActivity extends Activity {
                     deletePackage("facebook");
                     deletePackage("com.instagram.android");
                     deletePackage("com.whatsapp");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "FBapps deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -377,7 +383,7 @@ public class MainActivity extends Activity {
                     code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/list";
                     execForStringOutput(code);
                     execForStringOutput("sh /data/list");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Gapps without gmscore deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -392,6 +398,7 @@ public class MainActivity extends Activity {
                     execForStringOutput("sh /data/list");
                     disablePackage("com.android.vending");
                     disablePackage("com.android.chrome");
+                   Toast.makeText(getApplicationContext(), "Gapps disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -404,7 +411,7 @@ public class MainActivity extends Activity {
                 try {
                    deletePackage("microsoft");
                    disablePackage("com.skype.raider");
-
+                   Toast.makeText(getApplicationContext(), "MSapps disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -416,7 +423,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    deletePackage("knox");
+                    disablePackage("knox");
                     disablePackage("com.samsung.android.securitylogagent");
                     disablePackage("com.sec.android.providers.security");
                     disablePackage("com.samsung.android.mdm");
@@ -424,7 +431,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.sec.android.app.sysscope");
                     disablePackage("com.samsung.klmsagent");
                     disablePackage("com.sec.android.diagmonagent");
-
+                   Toast.makeText(getApplicationContext(), "Knox disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -436,9 +443,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    deletePackage("facebook");
+                    disablePackage("facebook");
                     disablePackage("com.instagram.android");
                     disablePackage("com.whatsapp");
+                   Toast.makeText(getApplicationContext(), "FBapps disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -496,7 +504,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.samsung.android.game.gamehome");
                     deletePackage("com.enhance.gameservice");
                     deletePackage("com.samsung.android.game.gametools");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Samsung Bloatwares deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -553,6 +561,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.samsung.android.game.gamehome");
                     disablePackage("com.enhance.gameservice");
                     disablePackage("com.samsung.android.game.gametools");
+                   Toast.makeText(getApplicationContext(), "Samsung Bloatwares disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -572,7 +581,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.vznavigator");
                     deletePackage("com.verizon.permissions.qos");
                     deletePackage("com.verizon.vzwavs");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Verizon Bloatvares deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -592,6 +601,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.vznavigator");
                     disablePackage("com.verizon.permissions.qos");
                     disablePackage("com.verizon.vzwavs");
+                   Toast.makeText(getApplicationContext(), "Verizon Bloatwares disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -603,7 +613,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     deletePackage("com.amazon");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Amazon Bloatwares deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -613,7 +623,8 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
-                    deletePackage("com.amazon");
+                    disablePackage("com.amazon");
+                   Toast.makeText(getApplicationContext(), "Amazon Bloatwares disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -629,7 +640,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.tmob.AveaOIM");
                     deletePackage("turktelekom");
                     deletePackage("avea");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Operator Bloatwares deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -639,12 +650,13 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
-                    deletePackage("turkcell");
+                    disablePackage("turkcell");
                     disablePackage("com.ttech.android.onlineislem");
-                    deletePackage("vodafone");
+                    disablePackage("vodafone");
                     disablePackage("com.tmob.AveaOIM");
-                    deletePackage("turktelekom");
-                    deletePackage("avea");
+                    disablePackage("turktelekom");
+                    disablePackage("avea");
+                   Toast.makeText(getApplicationContext(), "Operator Bloatwares disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -681,7 +693,7 @@ public class MainActivity extends Activity {
                     execForStringOutput("rm -rf /system/lib/libnotes_jni.so");
                     execForStringOutput("rm -rf /system/lib/libnotesprovider_jni.so");
                     execForStringOutput("rm -rf /system/lib/libpolarisoffice_Clipboard.so");
-                    execForStringOutput("reboot");
+                   Toast.makeText(getApplicationContext(), "Other Bloatwares deleted." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -708,6 +720,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.generalmobile.assistant");
                     disablePackage("com.android.email");
                     disablePackage("org.lineageos.jelly");
+                   Toast.makeText(getApplicationContext(), "Other Bloatwares disabled." , Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -739,6 +752,15 @@ public class MainActivity extends Activity {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
+            }
+        });
+        enable.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String code = "pm list package -d -f --user 0 | sed \"s/.*=//\" | sed \"s/^/pm enable /\" | sed \"s/$/ \\&/\" > /data/list";
+                    execForStringOutput(code);
+                    execForStringOutput("sh /data/list");
+                   Toast.makeText(getApplicationContext(), "All packages enabled." , Toast.LENGTH_SHORT).show();
             }
         });
         adblock.setOnClickListener(new OnClickListener() {
