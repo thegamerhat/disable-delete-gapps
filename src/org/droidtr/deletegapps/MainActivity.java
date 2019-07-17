@@ -52,17 +52,17 @@ public class MainActivity extends Activity {
 		try {
 		java.lang.Process p = Runtime.getRuntime().exec("su");
 		dos = new DataOutputStream(p.getOutputStream());
-		execForStringOutput("mount -o remount,rw /system");
-		execForStringOutput("mount -o remount,rw /oem");
-		execForStringOutput("mount -o remount,rw /cust");
-		execForStringOutput("mount -o remount,rw /");
+		execForStringOutput("mount -o rw,remount /");
+		execForStringOutput("mount -o rw,remount /system");
+		execForStringOutput("mount -o rw,remount /oem");
+		execForStringOutput("mount -o rw,remount /cust");
         execForStringOutput("mount -o remount,rw /vendor");
 		if (Build.VERSION.SDK_INT > 21) {
-            setTheme(android.R.style.Theme_Material_Dialog);
+            setTheme(android.R.style.Theme_Material);
         } else if (Build.VERSION.SDK_INT > 14) {
-            setTheme(android.R.style.Theme_Holo_Dialog);
+            setTheme(android.R.style.Theme_Holo);
         } else {
-            setTheme(android.R.style.Theme_Dialog);
+            setTheme(android.R.style.Theme);
         }
              label=getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false);
         } catch (Exception e) {
@@ -76,8 +76,11 @@ public class MainActivity extends Activity {
         new Download(this).execute(url, path);
 
     }
+    public Button getButton(String label){
+        return(getButton(label,Color.parseColor("#ec407a")));
+    }
 
-    public Button getButton(String label) {
+    public Button getButton(String label,int c) {
         LinearLayout.LayoutParams butparam = new LinearLayout.LayoutParams(-2, -1);
         butparam.weight = 1;
         Button b = new Button(getApplicationContext());
@@ -86,7 +89,7 @@ public class MainActivity extends Activity {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(10, 0);
         gd.setCornerRadius(15);
-        gd.setColor(Color.DKGRAY);
+        gd.setColor(c);
         b.setBackgroundDrawable(gd);
         b.setLayoutParams(butparam);
         b.setSingleLine(true);
@@ -120,9 +123,7 @@ public class MainActivity extends Activity {
     }
 
     public void deletePackage(String name){
-        execForStringOutput("pm list package -f --user 0 | grep " + name.trim() + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/target");
-        execForStringOutput("sh /data/target");
-    }
+        execForStringOutput("pm uninstall -k --user 0 " + name.trim() );    }
 
     public void disablePackage(String name){
         execNoWait("pm disable " + name.trim() );
@@ -138,30 +139,31 @@ public class MainActivity extends Activity {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(2, Color.BLACK);
         gd.setCornerRadius(15);
-        gd.setColor(Color.LTGRAY);
+        gd.setColor(Color.parseColor("#90a4ae"));
 
-        final Button delete = getButton("Delete");
+
+        final Button delete = getButton("Delete",Color.parseColor("#EC4055"));
         Button deletems = getButton("Delete");
         Button safe = getButton("Delete without GMS");
-        final Button disable = getButton("Disable");
-        Button disablems = getButton("Disable");
+        final Button disable = getButton("Disable",Color.parseColor("#4055EC"));
+        Button disablems = getButton("Disable",Color.parseColor("#4055EC"));
         Button deletefb = getButton("Delete");
-        Button disablefb = getButton("Disable");
+        Button disablefb = getButton("Disable",Color.parseColor("#4055EC"));
         Button deletesam = getButton("Delete");
-        Button disablesam = getButton("Disable");
+        Button disablesam = getButton("Disable",Color.parseColor("#4055EC"));
         Button deletever = getButton("Delete");
-        Button disablever = getButton("Disable");
+        Button disablever = getButton("Disable",Color.parseColor("#4055EC"));
         Button deleteknx = getButton("Delete");
-        Button disableknx = getButton("Disable");
+        Button disableknx = getButton("Disable",Color.parseColor("#4055EC"));
         Button deleteama = getButton("Delete");
-        Button disableama = getButton("Disable");
+        Button disableama = getButton("Disable",Color.parseColor("#4055EC"));
         Button deletemis = getButton("Delete");
-        final Button disablemis = getButton("Disable");
+        final Button disablemis = getButton("Disable",Color.parseColor("#4055EC"));
         Button deletetur = getButton("Delete");
-        Button disabletur = getButton("Disable");
-        Button dalvik = getButton("Clear & Reboot");
-        Button info = getButton("Telegram Group");
-        Button adblock = getButton("Block Ads");
+        Button disabletur = getButton("Disable",Color.parseColor("#4055EC"));
+        Button dalvik = getButton("Clear & Reboot",Color.BLACK);
+        Button info = getButton("Telegram Group",Color.BLACK);
+        Button adblock = getButton("Block Ads",Color.BLACK);
 
         LinearLayout ll = getLinearLayout();
         ll.addView(delete);
@@ -266,6 +268,7 @@ public class MainActivity extends Activity {
                     execNoWait("sh /data/list");
                     deletePackage("com.android.chrome");
                     deletePackage("com.android.vending");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -279,6 +282,7 @@ public class MainActivity extends Activity {
                     //delete all msapps
                     deletePackage("microsoft");
                     deletePackage("com.skype.raider");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -289,7 +293,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    //delete all msapps
+                    //delete knox packages
                     deletePackage("knox");
                     deletePackage("com.samsung.android.securitylogagent");
                     deletePackage("com.sec.android.providers.security");
@@ -312,6 +316,7 @@ public class MainActivity extends Activity {
                     execForStringOutput("rm -rf /system/preloadedkiosk/kioskdefault");
                     execForStringOutput("rm -rf /system/preloadedsso/ssoservice.apk_");
                     execForStringOutput("rm -rf /system/recovery-from-boot.p");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -322,10 +327,11 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    //delete all msapps
+                    //delete all fbapps
                     deletePackage("facebook");
                     deletePackage("com.instagram.android");
                     deletePackage("com.whatsapp");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -368,6 +374,7 @@ public class MainActivity extends Activity {
                     code = code + " | sed \"s/=.*//\" | sed \"s/.*:/rm -rf /\" | sed \"s/$/ \\&/\" > /data/list";
                     execForStringOutput(code);
                     execForStringOutput("sh /data/list");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -486,6 +493,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.samsung.android.game.gamehome");
                     deletePackage("com.enhance.gameservice");
                     deletePackage("com.samsung.android.game.gametools");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -561,6 +569,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.vznavigator");
                     deletePackage(" com.verizon.permissions.qos");
                     deletePackage("com.verizon.vzwavs");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -591,6 +600,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 try {
                     deletePackage("com.amazon");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -616,6 +626,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.tmob.AveaOIM");
                     deletePackage("turktelekom");
                     deletePackage("avea");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -666,6 +677,7 @@ public class MainActivity extends Activity {
                     execForStringOutput("rm -rf /system/lib/libnotes_jni.so");
                     execForStringOutput("rm -rf /system/lib/libnotesprovider_jni.so");
                     execForStringOutput("rm -rf /system/lib/libpolarisoffice_Clipboard.so");
+                    execForStringOutput("reboot");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
