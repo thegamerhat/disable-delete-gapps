@@ -123,12 +123,15 @@ public class MainActivity extends Activity {
     }
 
     public void deletePackage(String name){
-        execForStringOutput("pm uninstall -k --user 0 " + name.trim() );    }
-
-    public void disablePackage(String name){
-        execNoWait("pm disable " + name.trim() );
+         String code = "pm list package -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm uninstall -k --user 0 /\" | sed \"s/$/ \\&/\" > /data/list";
+                    execForStringOutput(code);
+                    execForStringOutput("sh /data/list");
     }
-
+    public void disablePackage(String name){
+         String code = "pm list package -f --user 0  | grep " + name + " | sed \"s/.*=//\" | sed \"s/^/pm disable /\" | sed \"s/$/ \\&/\" > /data/list";
+                    execForStringOutput(code);
+                    execForStringOutput("sh /data/list");
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 		init();
@@ -386,7 +389,7 @@ public class MainActivity extends Activity {
             public void onClick(View p1) {
                 try {
                     execForStringOutput("pm list package  | grep -v \"ext.shared\" | grep -v \"packageinstaller\" |  grep -v \"ext.services\" | grep google | sed \"s/.*:/pm disable /\"> /data/list");
-                    execForStringOutput("sh /data/target");
+                    execForStringOutput("sh /data/list");
                     disablePackage("com.android.vending");
                     disablePackage("com.android.chrome");
                 } catch (Exception e) {
@@ -399,7 +402,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                   disablePackage("microsoft");
+                   deletePackage("microsoft");
                    disablePackage("com.skype.raider");
 
                 } catch (Exception e) {
@@ -413,7 +416,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    disablePackage("knox");
+                    deletePackage("knox");
                     disablePackage("com.samsung.android.securitylogagent");
                     disablePackage("com.sec.android.providers.security");
                     disablePackage("com.samsung.android.mdm");
@@ -433,7 +436,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View p1) {
                 try {
-                    disablePackage("facebook");
+                    deletePackage("facebook");
                     disablePackage("com.instagram.android");
                     disablePackage("com.whatsapp");
                 } catch (Exception e) {
@@ -567,7 +570,7 @@ public class MainActivity extends Activity {
                     deletePackage("com.vzw.hs.android.modlite");
                     deletePackage("com.samsung.vvm");
                     deletePackage("com.vznavigator");
-                    deletePackage(" com.verizon.permissions.qos");
+                    deletePackage("com.verizon.permissions.qos");
                     deletePackage("com.verizon.vzwavs");
                     execForStringOutput("reboot");
                 } catch (Exception e) {
@@ -587,7 +590,7 @@ public class MainActivity extends Activity {
                     disablePackage("com.vzw.hs.android.modlite");
                     disablePackage("com.samsung.vvm");
                     disablePackage("com.vznavigator");
-                    disablePackage(" com.verizon.permissions.qos");
+                    disablePackage("com.verizon.permissions.qos");
                     disablePackage("com.verizon.vzwavs");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
@@ -610,7 +613,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
-                    disablePackage("com.amazon");
+                    deletePackage("com.amazon");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -636,12 +639,12 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 try {
-                    disablePackage("turkcell");
+                    deletePackage("turkcell");
                     disablePackage("com.ttech.android.onlineislem");
-                    disablePackage("vodafone");
+                    deletePackage("vodafone");
                     disablePackage("com.tmob.AveaOIM");
-                    disablePackage("turktelekom");
-                    disablePackage("avea");
+                    deletePackage("turktelekom");
+                    deletePackage("avea");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
@@ -666,7 +669,8 @@ public class MainActivity extends Activity {
                     deletePackage("com.mobitv.client.tmobiletvhd");
                     deletePackage("us.com.dt.iq.appsource.tmobile");
                     deletePackage("com.generalmobile.assistant");
-                    execForStringOutput("rm -rf /system/media/bootanimation.zip");
+                    deletePackage("com.android.email");
+                    deletePackage("org.lineageos.jelly");
                     execForStringOutput("rm -rf /system/vendor/pittpatt");
                     execForStringOutput("rm -rf /system/customize/");
                     execForStringOutput("rm -rf /system/media/video/");
@@ -702,6 +706,8 @@ public class MainActivity extends Activity {
                     disablePackage("com.mobitv.client.tmobiletvhd");
                     disablePackage("us.com.dt.iq.appsource.tmobile");
                     disablePackage("com.generalmobile.assistant");
+                    disablePackage("com.android.email");
+                    disablePackage("org.lineageos.jelly");
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
