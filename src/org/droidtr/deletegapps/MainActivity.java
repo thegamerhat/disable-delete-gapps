@@ -229,7 +229,6 @@ public class MainActivity extends Activity {
         LinearLayout lls = getLinearLayout();
         LinearLayout lls2 = getLinearLayout();
         lls.addView(dalvik);
-        lls.addView(info);
         lls2.addView(adblock);
         lls2.addView(enable);
         main.addView(getLabel("Other"));
