@@ -1,13 +1,13 @@
 SDK=~/Android/Sdk
-TARGET=29
-TOOL=29.0.1
+TARGET=$(shell ls $(SDK)/platforms | sort | tail -n 1)
+TOOL=$(shell ls $(SDK)/build-tools | sort | tail -n 1)
 JAVADIR=$(JAVA_HOME)/bin
 BUILDTOOLS=$(SDK)/build-tools/$(TOOL)
-AJAR=$(SDK)/platforms/android-$(TARGET)/android.jar
+AJAR=$(SDK)/platforms/$(TARGET)/android.jar
 ADX=$(BUILDTOOLS)/dx
 AAPT=$(BUILDTOOLS)/aapt
 JAVAC=$(JAVADIR)/javac
-JFLAGS=-source 8
+JFLAGS=-source 8 -g:none -encoding UTF-8
 JARSIGNER=$(JAVADIR)/jarsigner
 APKSIGNER=$(BUILDTOOLS)/apksigner
 ZIPALIGN=$(BUILDTOOLS)/zipalign
@@ -42,3 +42,7 @@ clear:
 	rm -rf bin gen
 install:
 	$(ADB) install -r bin/$(NAME).apk
+update-git:
+	git add .
+	git commit -m "İsimsiz Commit :D"
+	git push -u origin master
