@@ -167,7 +167,6 @@ public class MainActivity extends Activity {
         Button deletetur = getButton("Delete");
         Button disabletur = getButton("Disable",Color.parseColor("#4055EC"));
         Button dalvik = getButton("Clear & Reboot",Color.BLACK);
-        Button info = getButton("Telegram Group",Color.BLACK);
         Button adblock = getButton("Block Ads",Color.BLACK);
         Button enable = getButton("Enable All",Color.BLACK);
 
@@ -743,15 +742,6 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
                 }
-            }
-        });
-        info.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String url = "http://t.me/antigapps";
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
             }
         });
         enable.setOnClickListener(new OnClickListener() {
