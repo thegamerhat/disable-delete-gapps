@@ -1,6 +1,6 @@
 SDK=~/Android/Sdk
-TARGET=$(shell ls $(SDK)/platforms | sort | tail -n 1)
-TOOL=$(shell ls $(SDK)/build-tools | sort | tail -n 1)
+TARGET=$(shell ls $(SDK)/platforms | grep "2." |  sort | tail -n 1)
+TOOL=$(shell ls $(SDK)/build-tools | grep "2." | sort | tail -n 1)
 JAVADIR=$(JAVA_HOME)/bin
 BUILDTOOLS=$(SDK)/build-tools/$(TOOL)
 AJAR=$(SDK)/platforms/$(TARGET)/android.jar
