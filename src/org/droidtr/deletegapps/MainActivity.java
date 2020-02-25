@@ -56,6 +56,11 @@ public class MainActivity extends Activity {
 		execForStringOutput("mount -o rw,remount /system");
 		execForStringOutput("mount -o rw,remount /oem");
 		execForStringOutput("mount -o rw,remount /cust");
+		execForStringOutput("mount -o rw,remount /vendor");
+		execForStringOutput("mount -o remount,rw /");
+		execForStringOutput("mount -o remount,rw /system");
+		execForStringOutput("mount -o remount,rw /oem");
+		execForStringOutput("mount -o remount,rw /cust");
 		execForStringOutput("mount -o remount,rw /vendor");
 		if (Build.VERSION.SDK_INT > 21) {
 			setTheme(android.R.style.Theme_Material);
@@ -66,7 +71,8 @@ public class MainActivity extends Activity {
 		}
 			 label=getLabel("Warning: Be careful before deleting any system app or service. You must ensure that the package is not used by system to function. Removing a critical system app may result in bootlooping or soft bricking your device.", false);
 		} catch (Exception e) {
-	finish();
+			Toast.makeText(this, "Error: "+e.toString(), Toast.LENGTH_LONG).show();
+			finish();
 		}
 
 	}
@@ -171,6 +177,7 @@ public class MainActivity extends Activity {
 		Button dalvik = getButton("Clear & Reboot",Color.BLACK);
 		Button adblock = getButton("Block Ads",Color.BLACK);
 		Button enable = getButton("Enable All",Color.BLACK);
+		Button info = getButton("Telegram Channel",Color.BLACK);
 
 		LinearLayout ll = getLinearLayout();
 		ll.addView(delete);
@@ -239,6 +246,7 @@ public class MainActivity extends Activity {
 		lls.addView(dalvik);
 		lls2.addView(adblock);
 		lls2.addView(enable);
+		lls2.addView(info);
 		main.addView(getLabel("Other"));
 		main.addView(lls);
 		main.addView(lls2);
@@ -788,6 +796,16 @@ public class MainActivity extends Activity {
 				copyFromInternet("https://gitlab.com/sulincix/Guvenli_Internet/raw/master/hosts", "/system/etc/hosts");
 			}
 		});
+		info.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "http://t.me/antigapps";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
+
 	}
 
 }
