@@ -174,10 +174,13 @@ public class MainActivity extends Activity {
 		Button disabletur = getButton("Disable",Color.parseColor("#4055EC"));
 		Button deleteeve = getButton("Delete");
 		Button disableeve = getButton("Disable",Color.parseColor("#4055EC"));
+		Button deletemiui = getButton("Delete");
+		Button disablemiui = getButton("Disable",Color.parseColor("#4055EC"));
 		Button dalvik = getButton("Clear & Reboot",Color.BLACK);
 		Button adblock = getButton("Block Ads",Color.BLACK);
 		Button enable = getButton("Enable All",Color.BLACK);
-		Button info = getButton("Telegram Channel",Color.BLACK);
+		Button info = getButton("Telegram",Color.BLACK);
+		Button donate = getButton("Donate",Color.BLACK);
 
 		LinearLayout ll = getLinearLayout();
 		ll.addView(delete);
@@ -234,6 +237,12 @@ public class MainActivity extends Activity {
 		ll9.addView(disableeve);
 		main.addView(getLabel("Evenwell Bloatwares"));
 		main.addView(ll9);
+		
+		LinearLayout l20 = getLinearLayout();
+		l20.addView(deletemiui);
+		l20.addView(disablemiui);
+		main.addView(getLabel("Miui Bloatwares"));
+		main.addView(l20);
 
 		LinearLayout llm = getLinearLayout();
 		llm.addView(deletemis);
@@ -247,6 +256,7 @@ public class MainActivity extends Activity {
 		lls2.addView(adblock);
 		lls2.addView(enable);
 		lls2.addView(info);
+		lls2.addView(donate);
 		main.addView(getLabel("Other"));
 		main.addView(lls);
 		main.addView(lls2);
@@ -671,6 +681,41 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+		deletemiui.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					deletePackage("com.xiaomi.mipicks");
+					deletePackage("com.miui.bugreport");
+					deletePackage("com.miui.gallery");
+					deletePackage("com.xiaomi.payment");
+					deletePackage("com.xiaomi.midrop");
+					deletePackage("com.miui.videoplayer");
+					deletePackage("com.miui.notes");
+					deletePackage("com.miui.player");
+					deletePackage("com.xiaomi.scanner");
+					deletePackage("com.miui.screenrecorder");
+					deletePackage("com.miui.home");
+					deletePackage("com.miui.yellowpage");
+					deletePackage("com.miui.hybrid");
+					deletePackage("com.miui.compass");
+					deletePackage("com.miui.antispam");
+					deletePackage("com.miui.klo.bugreport");
+					deletePackage("com.mi.android.globalpersonalassistant");
+					deletePackage("com.miui.cleanmaster");
+					deletePackage("com.miui.analytics");
+					deletePackage("com.miui.providers.weather");
+					deletePackage("com.miui.weather2");
+					deletePackage("com.miui.cloudservice");
+					deletePackage("com.miui.cloudbackup");
+					deletePackage("com.xiaomi.account");
+					deletePackage("com.mi.webkit.core");
+				   Toast.makeText(getApplicationContext(), "Miui Bloatwares deleted." , Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
+				}
+			}
+		});
 		disabletur.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -698,6 +743,41 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+		disablemiui.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					disablePackage("com.xiaomi.mipicks");
+					disablePackage("com.miui.bugreport");
+					disablePackage("com.miui.gallery");
+					disablePackage("com.xiaomi.payment");
+					disablePackage("com.xiaomi.midrop");
+					disablePackage("com.miui.videoplayer");
+					disablePackage("com.miui.notes");
+					disablePackage("com.miui.player");
+					disablePackage("com.xiaomi.scanner");
+					disablePackage("com.miui.screenrecorder");
+					disablePackage("com.miui.home");
+					disablePackage("com.miui.yellowpage");
+					disablePackage("com.miui.hybrid");
+					disablePackage("com.miui.compass");
+					disablePackage("com.miui.antispam");
+					disablePackage("com.miui.klo.bugreport");
+					disablePackage("com.mi.android.globalpersonalassistant");
+					disablePackage("com.miui.cleanmaster");
+					disablePackage("com.miui.analytics");
+					disablePackage("com.miui.providers.weather");
+					disablePackage("com.miui.weather2");
+					disablePackage("com.miui.cloudservice");
+					disablePackage("com.miui.cloudbackup");
+					disablePackage("com.xiaomi.account");
+					disablePackage("com.mi.webkit.core");
+				   Toast.makeText(getApplicationContext(), "Miui Bloatwares disabled." , Toast.LENGTH_SHORT).show();
+				} catch (Exception e) {
+					Toast.makeText(getApplicationContext(), "Fail: " + e.toString(), Toast.LENGTH_LONG).show();
+				}
+			}
+		});
 		deletemis.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -716,6 +796,7 @@ public class MainActivity extends Activity {
 					deletePackage("com.android.cellbroadcastreceiver");
 					deletePackage("com.mobitv.client.tmobiletvhd");
 					deletePackage("us.com.dt.iq.appsource.tmobile");
+					deletePackage("com.ss.android.ugc");
 					deletePackage("com.generalmobile.assistant");
 					deletePackage("com.android.email");
 					deletePackage("org.lineageos.jelly");
@@ -750,6 +831,7 @@ public class MainActivity extends Activity {
 					disablePackage("com.infraware.polarisoffice5");
 					disablePackage("com.nuance.swype.input");
 					disablePackage("com.android.stk");
+					disablePackage("com.ss.android.ugc");
 					disablePackage("com.android.cellbroadcastreceiver");
 					disablePackage("com.mobitv.client.tmobiletvhd");
 					disablePackage("us.com.dt.iq.appsource.tmobile");
@@ -800,6 +882,15 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String url = "http://t.me/antigapps";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
+        donate.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://www.patreon.com/sulincix";
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
